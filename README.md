@@ -68,7 +68,7 @@ This web application allows users to create, manage, and filter flashcards or vo
 
 ## Deployment
 - GitHub repository: https://github.com/00017394/WT.CW2.00017394
-- Deployed app: [Hosted App Link]
+- Deployed app: https://wt-cw2-00017394.onrender.com/
 
 ---
 
