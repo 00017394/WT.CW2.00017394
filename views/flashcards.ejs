@@ -1,0 +1,102 @@
+
+
+<h2>Flashcards</h2>
+
+<!-- Add Flashcard Form -->
+<form action="/flashcards/add" method="POST" class="mb-4">
+    <div class="row">
+        <div class="col-md-3">
+            <input type="text" name="word" class="form-control" placeholder="Word" required>
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="translation" class="form-control" placeholder="Translation" required>
+        </div>
+        <div class="col-md-3">
+            <select name="language" class="form-control">
+                <% languages.forEach(function(language) { %>
+                    <option value="<%= language.code %>"><%= language.name %></option>
+                <% }); %>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary">Add</button>
+        </div>
+    </div>
+</form>
+
+<!-- Language Filter -->
+<form action="/flashcards/filter" method="GET" class="mb-3">
+    <div class="row">
+        <div class="col-md-4">
+            <select name="language" class="form-control">
+                <option value="">All Languages</option>
+                <% languages.forEach(function(language) { %>
+                    <option value="<%= language.code %>" <%= selectedLang === language.code ? 'selected' : '' %>><%= language.name %></option>
+                <% }); %>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-secondary">Filter</button>
+        </div>
+    </div>
+</form>
+
+<!-- Flashcards Table -->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Word</th>
+            <th>Translation</th>
+            <th>Language</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% flashcards.forEach(flashcard => { %>
+            <tr>
+                <td><%= flashcard.word %></td>
+                <td><%= flashcard.translation %></td>
+                <td><%= flashcard.language %></td>
+                <td>
+                    <!-- Edit Button (Opens Modal) -->
+                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-<%= flashcard.id %>">
+                        Edit
+                    </button>
+                    
+                    <!-- Delete Form -->
+                    <form action="/flashcards/delete/<%= flashcard.id %>" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+    
+            <!-- Edit Modal -->
+            <div class="modal fade" id="editModal-<%= flashcard.id %>" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Edit Flashcard</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form action="/flashcards/update/<%= flashcard.id %>" method="POST">
+                            <div class="modal-body">
+                                <input type="text" name="word" class="form-control mb-2" value="<%= flashcard.word %>" required>
+                                <input type="text" name="translation" class="form-control mb-2" value="<%= flashcard.translation %>" required>
+                                <select name="language" class="form-control">
+                                    <% languages.forEach(function(language) { %>
+                                        <option value="<%= language.code %>" <%= flashcard.language === language.code ? 'selected' : '' %>><%= language.name %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </tbody>
+    
+</table>
