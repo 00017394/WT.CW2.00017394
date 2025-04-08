@@ -1,67 +1,49 @@
-const { readJSON, writeJSON } = require('../services/fileService');
+const flashcardService = require("../services/flashcardService");
+const languageService = require("../services/languageService");
 
-const FLASHCARDS_FILE = 'data/flashcards.json';
-const LANGUAGES_FILE = 'data/languages.json';
 
 // Get all flashcards
-exports.getFlashcards = (req, res) => {
-    const flashcards = readJSON(FLASHCARDS_FILE);
-    const languages = readJSON(LANGUAGES_FILE);
+exports.getFlashcards = async (req, res) => {
+    const flashcards = await flashcardService.getAll();
+    const languages = await languageService.getAll();
     res.render('flashcards', { flashcards, languages, selectedLang: '' });
 };
 
 // Add a new flashcard
-exports.addFlashcard = (req, res) => {
+exports.addFlashcard = async (req, res) => {
     const { word, translation, language } = req.body;
-    const flashcards = readJSON(FLASHCARDS_FILE);
+    const newFlashcard = { word, translation, language };
 
-    const newFlashcard = {
-        id: flashcards.length ? flashcards[flashcards.length - 1].id + 1 : 1,
-        word,
-        translation,
-        language
-    };
-
-    flashcards.push(newFlashcard);
-    writeJSON(FLASHCARDS_FILE, flashcards);
+    await flashcardService.create(newFlashcard);
 
     res.redirect('/flashcards');
 };
 
 // Update a flashcard
-exports.updateFlashcard = (req, res) => {
+exports.updateFlashcard = async(req, res) => {
     const { id } = req.params;
     const { word, translation, language } = req.body;
-    let flashcards = readJSON(FLASHCARDS_FILE);
 
-    flashcards = flashcards.map(flashcard =>
-        flashcard.id == id ? { ...flashcard, word, translation, language } : flashcard
-    );
+    await flashcardService.update(id, word, translation, language);
 
-    writeJSON(FLASHCARDS_FILE, flashcards);
     res.redirect('/flashcards');
 };
 
 // Delete a flashcard
-exports.deleteFlashcard = (req, res) => {
+exports.deleteFlashcard = async(req, res) => {
     const { id } = req.params;
-    let flashcards = readJSON(FLASHCARDS_FILE);
-
-    flashcards = flashcards.filter(flashcard => flashcard.id != id);
-    writeJSON(FLASHCARDS_FILE, flashcards);
+    
+    await flashcardService.delete(id);
 
     res.redirect('/flashcards');
 };
 
 // Filter flashcards by language
-exports.filterFlashcards = (req, res) => {
+exports.filterFlashcards = async(req, res) => {
     const { language } = req.query;
-    let flashcards = readJSON(FLASHCARDS_FILE);
-    const languages = readJSON(LANGUAGES_FILE);
-
-    if (language) {
-        flashcards = flashcards.filter(flashcard => flashcard.language === language);
-    }
+    const languages = await languageService.getAll();
+    
+    const flashcards = await flashcardService.filterByLanguage(language);
 
     res.render('flashcards', { flashcards, languages, selectedLang: language });
 };
